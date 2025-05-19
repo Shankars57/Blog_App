@@ -47,11 +47,12 @@ const SaveDraftList = () => {
     try {
       for (const draft of drafts) {
         const updated = { ...draft, status: "published" };
-        await axios.post(`${url}/publish`, updated); 
+        await axios.post(`${url}/publish`, updated);
       }
 
       toast.success("Drafts published successfully", { autoClose: 2000 });
       setDrafts([]);
+      navigate("/published");
     } catch (e) {
       console.error(e);
       toast.error("Error publishing drafts");

@@ -5,10 +5,12 @@ import "./BlogEditor.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BlogContext } from "../../context/BlogProvider";
+import { useNavigate } from "react-router-dom";
 
 const BlogEditor = () => {
   const { url } = useContext(BlogContext);
   const [hasAutoSaved, setHasAutoSaved] = useState(false);
+  const navigate = useNavigate();
 
   const [data, setData] = useState({
     title: "",
@@ -108,6 +110,16 @@ const BlogEditor = () => {
     };
 
     const endpoint = isDraft ? url + "/save-draft" : url + "/publish";
+  
+     if(isDraft==="draft"){
+      navigate("/drafts");
+     }
+
+     else{
+      navigate("/published");
+     }
+
+
 
     try {
       const res = await axios.post(endpoint, blogData);
