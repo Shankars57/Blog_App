@@ -1,11 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "./BlogEditor.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { BlogContext } from "../../context/BlogProvider";
 
 const BlogEditor = () => {
+  const { url } = useContext(BlogContext);
+  const [hasAutoSaved, setHasAutoSaved] = useState(false);
+
   const [data, setData] = useState({
     title: "",
     content: "",
@@ -64,10 +68,7 @@ const BlogEditor = () => {
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/blogs/save-draft",
-        blogData
-      );
+      const res = await axios.post(url + "/save-draft", blogData);
       if (res.status === 200 || res.status === 201) {
         toast.success("Draft auto-saved");
       }
@@ -77,10 +78,12 @@ const BlogEditor = () => {
   };
 
   const triggerInactivitySave = () => {
+    if (hasAutoSaved) return;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       saveDraft();
-    }, 5000); // Save after 5 seconds of inactivity
+      setHasAutoSaved(true); // mark as saved
+    }, 5000);
   };
 
   useEffect(() => {
@@ -88,7 +91,7 @@ const BlogEditor = () => {
     intervalRef.current = setInterval(() => {
       saveDraft();
     }, 30000);
-
+    setHasAutoSaved(false);
     return () => {
       clearInterval(intervalRef.current);
       clearTimeout(timeoutRef.current);
@@ -104,12 +107,10 @@ const BlogEditor = () => {
       status: isDraft ? "draft" : "published",
     };
 
-    const url = isDraft
-      ? "http://localhost:5000/api/blogs/save-draft"
-      : "http://localhost:5000/api/blogs/publish";
+    const endpoint = isDraft ? url + "/save-draft" : url + "/publish";
 
     try {
-      const res = await axios.post(url, blogData);
+      const res = await axios.post(endpoint, blogData);
       if (res.status === 200 || res.status === 201) {
         toast.success(
           `Blog ${isDraft ? "saved as draft" : "published"} successfully!`

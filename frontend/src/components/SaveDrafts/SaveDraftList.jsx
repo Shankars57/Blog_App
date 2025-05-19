@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./SaveDrafts.css";
+import { BlogContext } from "../../context/BlogProvider";
 
 const SaveDraftList = () => {
   const [drafts, setDrafts] = useState([]);
   const navigate = useNavigate();
+  const { url } = useContext(BlogContext);
 
   useEffect(() => {
     const fetchDrafts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/blogs");
+        const res = await axios.get(url);
         const draftBlogs = res.data.filter((blog) => blog.status === "draft");
         setDrafts(draftBlogs);
       } catch (err) {
@@ -24,37 +26,34 @@ const SaveDraftList = () => {
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
+
   const handleHtml = (html) => {
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     return tempDiv.textContent || tempDiv.innerText || "";
   };
+
   const handleDelete = async (blogId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${blogId}`);
+      await axios.delete(`${url}/${blogId}`);
       setDrafts((prev) => prev.filter((blog) => blog._id !== blogId));
       toast.success("Blog deleted");
     } catch (e) {
       toast.error("Failed to delete blog");
     }
   };
+
   const handleSave = async () => {
     try {
-      const updatedDrafts = drafts.map((draft) => ({
-        ...draft,
-        status: "published",
-      }));
-
-      await axios.post("http://localhost:5000/api/blogs/publish", {
-        blogs: updatedDrafts,
-        deletedIds: [], // optional
-      });
+      for (const draft of drafts) {
+        const updated = { ...draft, status: "published" };
+        await axios.post(`${url}/publish`, updated); 
+      }
 
       toast.success("Drafts published successfully", { autoClose: 2000 });
-
-      // Remove published drafts from UI
       setDrafts([]);
     } catch (e) {
+      console.error(e);
       toast.error("Error publishing drafts");
     }
   };
@@ -62,6 +61,7 @@ const SaveDraftList = () => {
   if (drafts.length === 0) {
     return <p>No drafts found.</p>;
   }
+
   return (
     <div className="blog-container">
       {drafts.map((draft, index) => (

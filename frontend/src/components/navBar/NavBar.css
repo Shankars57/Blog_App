@@ -74,8 +74,8 @@
     padding: 10px 15px;
     justify-content: center;
     flex-direction: row;
-    gap: 20px;
-    width:100%;
+    gap: 50px;
+
   }
 
   .navbar nav ul {

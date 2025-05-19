@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "./LoginPage.css";
-
+import { BlogContext} from "../../context/BlogProvider";
 const LoginPage = ({ setContent }) => {
   const [isSignup, setIsSignup] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [name, setName] = useState("");
+  const { url } = useContext(BlogContext);
   const [data, setData] = useState({
     username: "",
     email: "",
@@ -26,9 +27,7 @@ const LoginPage = ({ setContent }) => {
       ? { name: username, email, password }
       : { email, password };
 
-    const endpoint = isSignup
-      ? "http://localhost:5000/api/blogs/register"
-      : "http://localhost:5000/api/blogs/login";
+    const endpoint = isSignup ? url + "/register" : url + "/login";
 
     try {
       const res = await axios.post(endpoint, payload);

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { BlogContext } from "../../context/BlogProvider";
 import "./BlogList.css"; // Assuming you have some CSS for styling
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
   const [deletedIds, setDeletedIds] = useState([]);
+  const { url } = useContext(BlogContext);
 
   const navigate = useNavigate();
   const handleEdit = (blogId) => {
@@ -15,7 +17,7 @@ const BlogList = () => {
   useEffect(() => {
     async function fetchBlogs() {
       try {
-        const response = await axios.get("http://localhost:5000/api/blogs");
+        const response = await axios.get(url);
         setBlogs(response.data);
       } catch (e) {
         toast.error("Error fetching blogs");
@@ -26,7 +28,7 @@ const BlogList = () => {
 
   const handleDelete = async (blogId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${blogId}`);
+      await axios.delete(`${url}/${blogId}`);
       setBlogs((prev) => prev.filter((blog) => blog._id !== blogId));
       toast.success("Blog deleted");
     } catch (e) {
@@ -47,8 +49,7 @@ const BlogList = () => {
   const handleSave = async () => {
     alert("Do you want to save the changes?");
     try {
-
-      await axios.post("http://localhost:5000/api/blogs/publish", {
+      await axios.post(url + "/publish", {
         blogs,
         deletedIds,
       });

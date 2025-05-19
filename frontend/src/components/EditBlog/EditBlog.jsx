@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "./EditBlog.css";
+import { BlogContext } from "../../context/BlogProvider";
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -13,11 +14,12 @@ const EditBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
+  const { url } = useContext(BlogContext);
 
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const res = await axios.get(`http://localhost:5000/api/blogs/${id}`);
+        const res = await axios.get(`${url}/${id}`);
         setTitle(res.data.title);
         setContent(res.data.content);
         setTags(res.data.tags.join(", "));
@@ -30,7 +32,7 @@ const EditBlog = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/blogs/save-draft`, {
+      await axios.post(`${url}/save-draft`, {
         title,
         content,
         tags: tags.split(",").map((tag) => tag.trim()),
@@ -48,8 +50,8 @@ const EditBlog = () => {
       <h2>Edit Blog</h2>
       <div className="edit-form-group">
         <label className="edit-label">Title</label>
-        <input  className="edit-input"
-         
+        <input
+          className="edit-input"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -63,7 +65,8 @@ const EditBlog = () => {
 
       <div className="edit-form-group">
         <label className="edit-label">Tags (comma-separated)</label>
-        <input  className="edit-input"
+        <input
+          className="edit-input"
           type="text"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
