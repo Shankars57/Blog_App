@@ -33,7 +33,7 @@ Styling: Custom CSS
    bash
    Copy
    Edit
-   git clone https://github.com/yourusername/blog-editor-app.git
+   git clone https://github.com/Shankars57/Blog_App/tree/main
    cd blog-editor-app
 1. Install client dependencies
    bash
